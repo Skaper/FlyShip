@@ -18,7 +18,7 @@ public class Renderer {
 	
 	public void clear() {
 		for(int i = 0; i<p.length; i++) {
-			p[i] = 0;
+			p[i] = 0xFF;
 		}
 	}
 
@@ -37,24 +37,12 @@ public class Renderer {
 			int pixelColor = p[index];
 			int newRed = ((pixelColor >> 16) & 0xff) - 
 					(int)((((pixelColor >> 16) & 0xff) - ((value >> 16) & 0xff))  * (alpha / 255f));
-			int newGreen = ((pixelColor >> 8) & 0xff) - 
+			int newGreen = ((pixelColor >> 8) & 0xff) -
 					(int)((((pixelColor >> 8) & 0xff) - ((value >> 8) & 0xff))  * (alpha / 255f));
 			
 			int newBlue = (pixelColor & 0xff) - (int)(((pixelColor & 0xff) - (value & 0xff)) * (alpha /255f));
 			p[index] = (255 << 24 | newRed << 16 | newGreen << 8 | newBlue);
 		}
-	}
-	public void drawImageUI(Sprite sprite, boolean a){
-
-		sprite.position.x = camX;
-		sprite.position.y = camY;
-		System.out.println(sprite.position);
-		if (!((Math.abs(sprite.position.x  + sprite.getWidth()/2f - getCamCenterX()) < sprite.getWidth()/2f + pW/2f) &&
-				(Math.abs(sprite.position.y + sprite.getHeight()/2f - getCamCenterY()) <  sprite.getHeight()/2f + pH/2f)))
-		{
-			return;
-		}
-		drawImageLogic(sprite);
 	}
 
 	public void drawImageUI(Sprite sprite){
@@ -100,19 +88,16 @@ public class Renderer {
 		int offX = Math.round(sprite.position.x);
 		int offY = Math.round(sprite.position.y);
 
-		int newX = 0;
-		int newY = 0;
-		
 		int newWidth = sprite.getWidth();
 		int newHeight = sprite.getHeight();
 
-		for(int y=newY; y < newHeight; y++) {
-			if(y+offY > pH + camY)continue;
+		for(int y=0; y < newHeight; y++) {
+			if(y+offY > pH + camY) break;
 			else if(y+offY < camY) continue;
-			for(int x = newX; x < newWidth; x++) {
-				if(x + offX > pW + camX) continue;
+			for(int x = 0; x < newWidth; x++) {
+				if(x + offX > pW + camX) break;
 				else if(x + offX < camX) continue;
-				setPixel(x + offX, y+offY, sprite.getPixels()[x + y * sprite.getWidth()]);
+				setPixel(x + offX, y+offY, sprite.getPixel(x + y * sprite.getWidth()));
 			}
 		}
 	}
@@ -123,25 +108,24 @@ public class Renderer {
 		text = text.toUpperCase();
 		int offset = 0;
 		int offsetY = 0;
+		int offSetDefault = font.getSymbolPixels(' ').getHeight();
 		for(char ch: text.toCharArray()) {
 			FontSymbol sym = font.getSymbolPixels(ch);
 			if(ch == '\n') {
-				offsetY += font.getSymbolPixels(' ').getHeight();
+				offsetY += offSetDefault;
 				offset = 0;
 				continue;
-				
 			}
 			sym.scale(size);
 			int h = sym.getHeight();
 			int w = sym.getWidth();
-			int[] pixels = sym.getPixels();
 			for(int y = 0; y <  h; y++) {
-				if(y+offY > pH + camY)continue;
-				else if(y+offY < camY) continue;
+				if(y+offY > pH + camY)break;
+				else if(y+offY + offsetY < camY) continue;
 				for(int x = 0; x < w; x++) {
-					if(x + offX > pW + camX) continue;
-					else if(x + offX < camX) continue;
-					if(pixels[x  + y * w] == 0xffffffff) {
+					if(x + offX > pW + camX) break;
+					else if(x + offX + offset < camX) continue;
+					if(sym.getPixel(x  + y * w) == 0xffffffff) {
 						setPixel(x+offX+offset, y + offY + offsetY, color);
 					}
 				}
@@ -158,14 +142,14 @@ public class Renderer {
 		int enY = Math.round(endY);
 
 		for(int y = stY; y <=  enY; y++) {
-			if(y > pH + camY)continue;
+			if(y > pH + camY)break;
 			else if(y < camY) continue;
 			setPixel(stX, y, color);
 			setPixel(enX, y, color);
 		}
 
 		for(int x = stX; x <= enX; x++) {
-			if(x > pW + camX) continue;
+			if(x > pW + camX) break;
 			else if(x < camX) continue;
 			setPixel(x, stY, color);
 			setPixel(x, enY, color);

@@ -1,5 +1,7 @@
 package engine;
 
+import engine.gfx.IColor;
+
 import static engine.GameSettings.*;
 
 
@@ -52,8 +54,9 @@ public class GameEngine implements Runnable{
 		thread = new Thread(this);
 		scenesManager.setup(this);
 		currentScene = scenesManager.getMainScene();
-		if(currentScene != null){
-			currentScene.setup(this);
+		if(currentScene == null){
+			System.err.println("Default Scene Not Set");
+			return;
 		}
 		thread.run();
 	}
@@ -67,10 +70,7 @@ public class GameEngine implements Runnable{
 	}
 	
 	public void run() {
-
-
 		running = true;
-		
 		boolean render = false;
 		double firstTime = 0;
 		double lastTime = System.nanoTime() / 1000000000.0;
@@ -81,8 +81,9 @@ public class GameEngine implements Runnable{
 		int frames = 0;
 		int fps = 0;
 
-		currentScene.setup(this);
 		currentScene.setupObjects(this);
+		currentScene.setup(this);
+		mainCamera.setupContent(currentScene);
 
 		while(running) {
 			firstTime = System.nanoTime() / 1000000000.0;
@@ -95,9 +96,9 @@ public class GameEngine implements Runnable{
 			while(unprocessedTime >= UPDATE_CAP) {
 				unprocessedTime -= UPDATE_CAP;
 
-
 				currentScene.updateObjects(this, (float)UPDATE_CAP);;
 				currentScene.update(this, (float)UPDATE_CAP);
+
 				Physics.update();
 
 				mainCamera.update(this, (float)UPDATE_CAP);
@@ -107,7 +108,7 @@ public class GameEngine implements Runnable{
 					fps = frames;
 					frames = 0;
 				}
-				input.update();//In last time 
+				input.update();
 				render = true;
 			}
 			
@@ -117,11 +118,11 @@ public class GameEngine implements Runnable{
 				currentScene.renderObjects(this, renderer);
 
 				if(SHOW_FPS) {
-					renderer.drawTextUI("FPS: " + fps, 0, 0, 2f, 0xff00ffff);
+					renderer.drawTextUI("FPS: " + fps, 0, 0, 2f, IColor.WHITE);
 					renderer.drawTextUI("X: " + input.getMouseX() +
-							" Y: " + input.getMouseY(), 80, 0, 2f, 0xff00ffff);
+							" Y: " + input.getMouseY(), 80, 0, 2f,  IColor.WHITE);
 					renderer.drawTextUI("WORLD X: " + renderer.getCamCenterX() +
-							" Y: " + renderer.getCamCenterY(), 200, 0, 2f, 0xff00ffff);
+							" Y: " + renderer.getCamCenterY(), 200, 0, 2f,  IColor.WHITE);
 				}
 				window.update();
 				frames++;
@@ -132,19 +133,21 @@ public class GameEngine implements Runnable{
 					e.printStackTrace();
 				}
 			}
-			if(nextSceneTag!= null && !scenesManager.getCurrentSceneTag().equals(nextSceneTag)){
-				Scene scene = scenesManager.getNextScene(nextSceneTag);
-				if(scene != null){
-					currentScene = scene;
-					currentScene.destroy();
-					mainCamera.reload(this);
-					renderer.clear();
-					currentScene.setup(this);
+			if(nextSceneTag!= null){
+				if(!scenesManager.getCurrentSceneTag().equals(nextSceneTag)) {
+					Scene scene = scenesManager.getNextScene(nextSceneTag);
+					if (scene != null) {
+						currentScene = scene;
+						currentScene.destroy();
+						mainCamera.reload(this);
+						renderer.clear();
+						currentScene.setup(this);
 
-					mainCamera.setupContent(currentScene);
-				}else{
-					System.err.println("Cannot find scene <"+nextSceneTag+">");
-					nextSceneTag = null;
+						mainCamera.setupContent(currentScene);
+					} else {
+						System.err.println("Cannot find scene <" + nextSceneTag + ">");
+						nextSceneTag = null;
+					}
 				}
 			}
 

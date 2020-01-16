@@ -155,6 +155,9 @@ public class Sprite{
 	public int[] getPixels() {
 		return pixels;
 	}
+	public int getPixel(int index){
+		return pixels[index];
+	}
 
 	public void setPixels(int[] pixels) {
 		this.pixels = pixels;

@@ -40,6 +40,9 @@ public class FontSymbol {
 	public int[] getPixels() {
 		return pixels;
 	}
+	public int getPixel(int index) {
+		return pixels[index];
+	}
 	
 	public boolean isEmpty() {
 		if(width == 0) {

@@ -15,6 +15,7 @@ public class SettingLoader {
             try {
                 SCREEN_WIDTH = Integer.parseInt(prop.getProperty("SCREEN_WIDTH"));
                 SCREEN_HEIGHT = Integer.parseInt(prop.getProperty("SCREEN_HEIGHT"));
+                BUFFER_STRATEGY = Integer.parseInt(prop.getProperty("BUFFER_STRATEGY"));
                 SCREEN_SCALE = Float.parseFloat(prop.getProperty("SCREEN_SCALE"));
                 SHOW_FPS = Boolean.parseBoolean(prop.getProperty("SHOW_FPS"));
                 RENDER_COMPONENTS = Boolean.parseBoolean(prop.getProperty("RENDER_COMPONENTS"));
@@ -38,6 +39,7 @@ public class SettingLoader {
 
             prop.setProperty("SCREEN_WIDTH", String.valueOf(SCREEN_WIDTH));
             prop.setProperty("SCREEN_HEIGHT", String.valueOf(SCREEN_HEIGHT));
+            prop.setProperty("BUFFER_STRATEGY", String.valueOf(BUFFER_STRATEGY));
             prop.setProperty("SCREEN_SCALE", String.valueOf(SCREEN_SCALE));
             prop.setProperty("SHOW_FPS", String.valueOf(SHOW_FPS));
             prop.setProperty("RENDER_COMPONENTS", String.valueOf(RENDER_COMPONENTS));

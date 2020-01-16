@@ -16,12 +16,11 @@ public class Window {
 	public Window(GameEngine gc) {
 		image = new BufferedImage(gc.getWidth(), gc.getHeight(), BufferedImage.TYPE_INT_RGB);
 		canvas = new Canvas();
-		Dimension s = new Dimension((int)(gc.getWidth() * gc.getScale()), (int)(gc.getHeight() * gc.getScale()));
-		canvas.setPreferredSize(s);
-		canvas.setMaximumSize(s);
-		canvas.setMinimumSize(s);
-		
-		
+		Dimension size = new Dimension((int)(gc.getWidth() * gc.getScale()), (int)(gc.getHeight() * gc.getScale()));
+		canvas.setPreferredSize(size);
+		canvas.setMaximumSize(size);
+		canvas.setMinimumSize(size);
+
 		frame = new JFrame(gc.getTitle());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
@@ -31,24 +30,20 @@ public class Window {
 		frame.setResizable(false);
 		frame.setVisible(true);
 
-		//frame.setFocusable(true);
 		frame.toFront();
 		frame.setState(Frame.NORMAL);
-
 		frame.addWindowListener(new java.awt.event.WindowAdapter() {
 		    @Override
 		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
 		        gc.stop();
 		    }
 		});
-		
-		canvas.createBufferStrategy(2);
+		canvas.createBufferStrategy(GameSettings.BUFFER_STRATEGY);
+		canvas.requestFocus();
 		bs = canvas.getBufferStrategy();
 		g = bs.getDrawGraphics();
-
-
-
 	}
+
 	public void update() {
 		g.drawImage(image, 0, 0, canvas.getWidth(), canvas.getHeight(), null);
 		bs.show();
