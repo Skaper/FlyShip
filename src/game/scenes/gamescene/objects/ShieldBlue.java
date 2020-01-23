@@ -11,14 +11,18 @@ import engine.gfx.Vector2;
 import engine.gfx.Sprite;
 import engine.objects.GameObject;
 import engine.objects.Layouts;
+import game.scenes.gamescene.objects.player.Player;
 
 
 public class ShieldBlue extends GameObject {
-    private float shieldPower = 100f;
     private Animation shield;
-    public ShieldBlue(Scene scene, Vector2 position) {
+
+    private Player player;
+    public ShieldBlue(Scene scene, Vector2 position, Player player) {
         super(scene, position);
+        this.player = player;
     }
+
     GameObject target = null;
     private final long REGEN_TIME_OUT = 200;
     private long lastRegenTime;
@@ -46,7 +50,7 @@ public class ShieldBlue extends GameObject {
 
     @Override
     public void update(GameEngine gc, float dt) {
-        if(shieldPower <= 0f) isActive = false;
+        if(player.energy <= 0f) isActive = false;
         circle.setActive(isActive);
         if(isActive) {
             if (target != null) {
@@ -61,20 +65,12 @@ public class ShieldBlue extends GameObject {
 
             }
         }
-        if(shieldPower < 100f){
-            if(Time.getMillis() - lastRegenTime >= REGEN_TIME_OUT){
-                shieldPower += 1f;
-                lastRegenTime = Time.getMillis();
-            }
-        }
-
-
     }
 
 
 
     public void setActive(boolean state){
-        if(shieldPower <= 25f) return;
+        if(player.energy <= 25f) return;
         isActive = state;
         circle.setActive(isActive);
     }
@@ -93,18 +89,15 @@ public class ShieldBlue extends GameObject {
 
     }
 
-    public int getPower(){
-        return (int)shieldPower;
-    }
 
     @Override
     public void onTrigger(Component component) {
         if(component.getParent().getTag().equals("enemyRocket")){
             component.getParent().setDead(true);
-            if(shieldPower < 25){
-                shieldPower = 0;
+            if(player.energy < 25){
+                player.energy = 0;
             }else {
-                shieldPower -= 25f;
+                player.energy -= 25f;
             }
         }
     }

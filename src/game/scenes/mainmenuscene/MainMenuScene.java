@@ -20,7 +20,7 @@ public class MainMenuScene extends Scene {
         sunButton = new Sprite("/images/planets/sun_1.png", Vector2.zero());
         sunButton.scale(0.1f, 0.1f);
         sunButton.setPos(new Vector2(gc.getWidth()/2f - sunButton.getWidth()/2f, gc.getHeight()/2f - sunButton.getHeight()/2f));
-        background = new Sprite("/images/background_720.png", Vector2.zero());
+        background = new Sprite("/images/background_stars.png", Vector2.zero());
 
     }
 

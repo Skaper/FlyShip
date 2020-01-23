@@ -12,12 +12,17 @@ import engine.gfx.Vector2;
 import engine.gfx.Sprite;
 import engine.objects.GameObject;
 import engine.objects.Layouts;
-import game.scenes.gamescene.objects.Rocket;
+import game.scenes.gamescene.objects.weapon.Rocket;
+import game.scenes.gamescene.objects.weapon.SingleRocket;
+
+import javax.swing.*;
+import java.util.ArrayList;
 
 public abstract class  Enemy extends GameObject {
     private CollisionCircle collisionCircle;
     private Animation exp;
-    public int health = 3;
+    private ArrayList<Animation> rocketDamageAnimations;
+    public int health = 40;
     public float speed = 3;
 
     protected long lastFireTime;
@@ -42,9 +47,13 @@ public abstract class  Enemy extends GameObject {
     public void setup(GameEngine gc) {
         layout = Layouts.NPC;
         setTag("enemy1");
-        setSkin(new Sprite("/images/ship/enemy_smart.png", position));
+        Sprite mainSkin =new Sprite("/images/ship/enemy_smart.png", position);
+        mainSkin.scale(0.7f, 0.7f);
+        setSkin(mainSkin);
 
         exp = new Animation("/animations/explosion",10f, position);
+        rocketDamageAnimations = new ArrayList<>();
+
         collisionCircle = new CollisionCircle(this);
 
         addComponent(collisionCircle);
@@ -55,9 +64,10 @@ public abstract class  Enemy extends GameObject {
         addComponent(sensorCircle);
         enemySetup(gc);
     }
-
+    private float dt;
     @Override
     public void update(GameEngine gc, float dt) {
+        this.dt = dt;
         if(health <= 0){
             removeComponent(collisionCircle.getTag());
             Sprite img = exp.next(dt);
@@ -67,6 +77,7 @@ public abstract class  Enemy extends GameObject {
                 setDead(true);
             }
         }else {
+
             fire(gc);
             enemyUpdate(gc, dt);
         }
@@ -96,13 +107,14 @@ public abstract class  Enemy extends GameObject {
         if(target != null) {
 
             double rad = Math.toRadians(angle);
-            if (Math.round(targetDist) > 305) {
+            if ( Math.round(targetDist) > 305) { // Math.round(targetDist) > 305
                 move(new Vector2(speed * Math.cos(rad), speed * Math.sin(rad)));
                 attackPlayer = false;
-            } else {
+            } else if(Math.round(targetDist) <= 305 && Math.round(targetDist) >= 305-speed ) {
                 attackPlayer = true;
 
 
+            }else{
                 move(new Vector2(-speed * Math.cos(rad), -speed * Math.sin(rad)));
             }
         }else{
@@ -113,14 +125,10 @@ public abstract class  Enemy extends GameObject {
     protected void fire(GameEngine gc){
         if(attackPlayer) {
             if (Time.getMillis() - lastFireTime > FIRE_TIME_OUT) {
-                Rocket rocket = new Rocket(scene, positionCenter) {
-                    @Override
-                    public void moving() {
-                        double rad = Math.toRadians(angle);
-                        move(new Vector2(speed * Math.cos(rad), speed * Math.sin(rad)));
-                    }
-                };
+                SingleRocket rocket = new SingleRocket(scene, positionCenter, this);
                 rocket.setTag("enemyRocket");
+                rocket.setDirection((int)angle);
+                rocket.addSpeed(speed);
                 scene.addObject(rocket, gc);
                 lastFireTime = Time.getMillis();
             }
@@ -172,6 +180,15 @@ public abstract class  Enemy extends GameObject {
     public void render(GameEngine gc, Renderer r) {
         super.render(gc, r);
         r.drawText("H:"+health, position.x, position.y - 20, 2f, IColor.WHITE);
+        for(int i = 0; i<rocketDamageAnimations.size(); i++){
+            Sprite img = rocketDamageAnimations.get(i).next(dt);
+            if (img != null) {
+                r.drawImage(img);
+            }else {
+                rocketDamageAnimations.remove(i);
+                i--;
+            }
+        }
     }
 
     @Override
@@ -190,7 +207,16 @@ public abstract class  Enemy extends GameObject {
     public void collision(Component component) {
         if(component.getParent().getTag().equals("rocket")){
             health--;
+            rocketDamageAnimations.add(
+                    new Animation("/animations/smallexplosion",
+                            4f,
+                            component.getParent().position.clone()));
             component.getParent().setDead(true);
+            Rocket rocket = (Rocket)component.getParent();
+            if(!hasSeenPlayer) setTarget(component.getParent());
+            isPlayerInFocus = true;
+            hasSeenPlayer = true;
+            setTarget(rocket.getParent());
         }
         if(component.getParent().getTag().equals("enemy1")){
                 Vector2 p = position.getMinus(component.getParent().position);

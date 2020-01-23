@@ -18,16 +18,15 @@ public class Background extends GameObject {
     @Override
     public void setup(GameEngine gc) {
         layout = Layouts.BACKGROUND;
-        background = new Sprite("/images/background_720.png", Vector2.zero());
+        background = new Sprite("/images/background_stars.png", Vector2.zero());
     
     }
     @Override
     public void update(GameEngine gc, float dt) {
-
     }
 
 
-    
+
     @Override
     public void render(GameEngine gc, Renderer r) {
         r.drawImageUI(background);

@@ -77,6 +77,10 @@ public class Animation {
 		}
 	}
 
+	public void reload(){
+		currentTile = 0;
+	}
+
 	public void setSpeed(float speed){
 		this.speed = speed;
 	}

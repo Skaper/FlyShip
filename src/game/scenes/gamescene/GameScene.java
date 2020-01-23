@@ -56,7 +56,7 @@ public class GameScene extends Scene {
 
         //Звук
         backLoop = new SoundClip("/audio/main_loop.wav");
-        //backLoop.loop();
+
         backLoop.setVolume(80);
         backLoop.loop();
     }
