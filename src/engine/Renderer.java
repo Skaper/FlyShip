@@ -46,16 +46,19 @@ public class Renderer {
 	}
 
 	public void drawImageUI(Sprite sprite){
-		sprite.position.x = camX;
-		sprite.position.y = camY;
+		float newX = sprite.position.x + camX;
+		float newY = sprite.position.y + camY;
+
+		drawImageLogic(sprite, newX, newY);
+	}
+	public void drawImage(Sprite sprite){
 		if (!((Math.abs(sprite.position.x  + sprite.getWidth()/2f - getCamCenterX()) < sprite.getWidth()/2f + pW/2f) &&
 				(Math.abs(sprite.position.y + sprite.getHeight()/2f - getCamCenterY()) <  sprite.getHeight()/2f + pH/2f)))
 		{
 			return;
 		}
-		drawImageLogic(sprite);
+		drawImageLogic(sprite, sprite.position.x, sprite.position.y);
 	}
-	public void drawImage(Sprite sprite){drawImageLogic(sprite);}
 
 	public void drawTextUI(String text, float posX, float posY, float size, int color){
 		posX+=camX;
@@ -82,11 +85,11 @@ public class Renderer {
 	}
 	public void drawCircle(float centerX, float centerY, float radius, int color){drawCircleLogic(centerX, centerY, radius, color);}
 
-	private void drawImageLogic(Sprite sprite) {
+	private void drawImageLogic(Sprite sprite, float newX, float newY) {
 	    if(sprite == null) return;
 
-		int offX = Math.round(sprite.position.x);
-		int offY = Math.round(sprite.position.y);
+		int offX = Math.round(newX);
+		int offY = Math.round(newY);
 
 		int newWidth = sprite.getWidth();
 		int newHeight = sprite.getHeight();
